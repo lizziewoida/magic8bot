@@ -1,27 +1,27 @@
 require('dotenv').config();
-const { App } = require('@slack/bolt');
+const { App, ExpressReceiver } = require('@slack/bolt');
 
-const app = new App({
-  token: process.env.SLACK_BOT_TOKEN,
+const receiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
+const app = new App({
+  token: process.env.SLACK_BOT_TOKEN,
+  receiver,
+});
+
 const responses = [
-  // Positive
   "It is certain.", "It is decidedly so.", "Without a doubt.",
   "Yes, definitely.", "You may rely on it.", "As I see it, yes.",
   "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.",
-  // Neutral
   "Reply hazy, try again.", "Ask again later.",
   "Better not tell you now.", "Cannot predict now.",
   "Concentrate and ask again.",
-  // Negative
   "Don't count on it.", "My reply is no.",
   "My sources say no.", "Outlook not so good.", "Very doubtful.",
 ];
 
 app.event('app_mention', async ({ event, say }) => {
-  // Strip the @mention to get just the question
   const question = event.text.replace(/<@[A-Z0-9]+>/g, '').trim();
 
   if (!question) {
@@ -35,7 +35,7 @@ app.event('app_mention', async ({ event, say }) => {
   const answer = responses[Math.floor(Math.random() * responses.length)];
 
   await say({
-    thread_ts: event.ts, // replies in thread to keep channels tidy
+    thread_ts: event.ts,
     blocks: [
       {
         type: 'section',
@@ -50,7 +50,6 @@ app.event('app_mention', async ({ event, say }) => {
 });
 
 (async () => {
-  const port = process.env.PORT || 3000;
-  await app.start(port);
-  console.log(`⚡️ Magic 8 Ball bot is running on port ${port}`);
+  await app.start(process.env.PORT || 3000);
+  console.log(`⚡️ Magic 8 Ball bot is running on port ${process.env.PORT || 3000}`);
 })();
