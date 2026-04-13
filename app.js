@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const { App } = require('@slack/bolt');
 
@@ -21,37 +20,30 @@ const responses = [
   "My sources say no.", "Outlook not so good.", "Very doubtful.",
 ];
 
-app.command('/8ball', async ({ command, ack, respond }) => {
-  await ack(); // Must acknowledge within 3 seconds
-
-  const question = command.text.trim();
+app.event('app_mention', async ({ event, say }) => {
+  // Strip the @mention to get just the question
+  const question = event.text.replace(/<@[A-Z0-9]+>/g, '').trim();
 
   if (!question) {
-    await respond({
-      response_type: 'ephemeral', // Only visible to the user
-      text: '🎱 Please ask me a question! Usage: `/8ball Will this deploy work?`',
+    await say({
+      thread_ts: event.ts,
+      text: "🎱 Ask me a question! e.g. *@magic8bot Will this deploy work?*",
     });
     return;
   }
 
   const answer = responses[Math.floor(Math.random() * responses.length)];
 
-  await respond({
-    response_type: 'in_channel', // Visible to the whole channel
+  await say({
+    thread_ts: event.ts, // replies in thread to keep channels tidy
     blocks: [
       {
         type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*Q: ${question}*`,
-        },
+        text: { type: 'mrkdwn', text: `*Q: ${question}*` },
       },
       {
         type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `🎱 *${answer}*`,
-        },
+        text: { type: 'mrkdwn', text: `🎱 *${answer}*` },
       },
     ],
   });
@@ -59,5 +51,5 @@ app.command('/8ball', async ({ command, ack, respond }) => {
 
 (async () => {
   await app.start(process.env.PORT || 3000);
-  console.log(`⚡️ Magic 8 Ball is running on port ${process.env.PORT}`);
+  console.log('⚡️ Magic 8 Ball bot is running!');
 })();
