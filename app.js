@@ -35,7 +35,6 @@ app.event('app_mention', async ({ event, say }) => {
   const answer = responses[Math.floor(Math.random() * responses.length)];
 
   await say({
-    thread_ts: event.ts,
     blocks: [
       {
         type: 'section',
