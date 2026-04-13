@@ -50,6 +50,7 @@ app.event('app_mention', async ({ event, say }) => {
 });
 
 (async () => {
-  await app.start(process.env.PORT || 3000);
-  console.log('⚡️ Magic 8 Ball bot is running!');
+  const port = process.env.PORT || 3000;
+  await app.start(port);
+  console.log(`⚡️ Magic 8 Ball bot is running on port ${port}`);
 })();
